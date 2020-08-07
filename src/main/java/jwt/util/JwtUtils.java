@@ -45,16 +45,15 @@ public class JwtUtils {
         return expiration.before(new Date());
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails, String audience) {
         Map<String, Object> claims = new HashMap<>();
-        return doGenerateToken(claims, userDetails.getUsername());
+        return doGenerateToken(claims, userDetails.getUsername(), audience);
     }
 
-
-    private String doGenerateToken(Map<String, Object> claims, String subject) {
+    private String doGenerateToken(Map<String, Object> claims, String subject, String audience) {
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-                .setAudience("http://localhost:8080/home")
+                .setAudience(audience)
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
 
@@ -62,6 +61,6 @@ public class JwtUtils {
         final String username = getUsernameFromToken(token);
         final String audience = getAudienceFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token)
-                && url.equals(audience));
+                && url.equals(audience) && audience.equals("http://localhost:8080/home"));
     }
 }
