@@ -33,3 +33,11 @@ _Hello JWT_
 
 _{"timestamp":"2020-08-07T14:25:26.166+0000","status":401,"error":"Unauthorized","message":"Unauthorized","path":"/not-home"}%_
 
+### Enabling Debug Mode
+
+Running the application with the "debug" Spring Profile will put the application into debug mode and it will log
+information about the JWT process
+
+mvn -Dspring.profiles.active=debug spring-boot:run
+ 
+

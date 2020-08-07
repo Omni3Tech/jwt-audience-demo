@@ -40,4 +40,13 @@ public class User implements Serializable {
     public void setAudience(String audience) {
         this.audience = audience;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", audience='" + audience + '\'' +
+                '}';
+    }
 }

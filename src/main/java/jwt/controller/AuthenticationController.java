@@ -4,6 +4,8 @@ import jwt.model.User;
 import jwt.security.JwtResponse;
 import jwt.security.JwtUserDetailsService;
 import jwt.util.JwtUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 public class AuthenticationController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationController.class);
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -27,6 +31,7 @@ public class AuthenticationController {
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody User authenticationRequest) throws Exception {
+        logger.debug("Creating authentication token for {}", authenticationRequest);
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
         final UserDetails userDetails = userDetailsService
                 .loadUserByUsername(authenticationRequest.getUsername());

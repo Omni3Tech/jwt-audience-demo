@@ -1,7 +1,10 @@
 package jwt.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import jwt.controller.AuthenticationController;
 import jwt.util.JwtUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +21,8 @@ import java.io.IOException;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
 
     @Autowired
     private JwtUserDetailsService jwtUserDetailsService;
@@ -37,9 +42,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             try {
                 username = jwtTokenUtil.getUsernameFromToken(jwtToken);
             } catch (IllegalArgumentException e) {
-                System.out.println("Unable to get JWT Token");
+                logger.error("Unable to get JWT Token");
             } catch (ExpiredJwtException e) {
-                System.out.println("JWT Token has expired");
+                logger.error("JWT Token has expired");
             }
         } else {
             logger.warn("JWT Token does not begin with Bearer String");
@@ -47,7 +52,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
 
-            if (jwtTokenUtil.validateToken(jwtToken, userDetails, request.getRequestURL().toString())) {
+            String audience = request.getRequestURL().toString();
+            if (jwtTokenUtil.validateToken(jwtToken, userDetails, audience)) {
+                logger.debug("\t***** JWT VALIDATION DETAILS ***** \n\n\tJWT: {} \n\tUser: {} " +
+                                "\n\tAudience (URL): {}\n", jwtToken, userDetails.getUsername(),
+                        audience);
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
                         = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
@@ -59,5 +68,4 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
         chain.doFilter(request, response);
     }
-
 }
